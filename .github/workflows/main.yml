@@ -1,0 +1,46 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches:
+      - main # Thay thế bằng tên nhánh mà bạn muốn trigger CI/CD (ví dụ: main, master)
+  pull_request:
+    branches: ["main"]
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.1"
+  deploy:
+    runs-on: self-hosted # Sử dụng runner tự host
+
+    needs: ci
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up PHP
+        run: |
+          sudo apt install php8.1 php8.1-fpm php8.1-mysql php8.1-cli php8.1-curl php8.1-gd php8.1-mbstring php8.1-xml php8.1-xmlrpc -y
+          sudo apt-get install php8.1 php8.1-fpm
+          sudo systemctl restart php8.1-fpm
+
+
+      - name: Install WordPress CLI
+        run: |
+          curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+          chmod +x wp-cli.phar
+          sudo mv wp-cli.phar /usr/local/bin/wp
+
+      - name: Deploy WordPress
+        run: |
+          cd /var/www/html
+          sudo git pull origin main  
+          sudo git checkout main  
+          sudo chown -R www-data:www-data /var/www/html
+          sudo service nginx reload

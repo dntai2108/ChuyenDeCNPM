@@ -1,0 +1,8 @@
+# Ignore cache and temporary files
+wp-content/cache/ wp-content/uploads/ wp-content/upgrade/
+# Ignore sensitive configuration files
+wp-config.php
+# Ignore logs and backup files
+*.log *.sql *.bak
+# Ignore dependencies and build artifacts
+node_modules/ /dist/
